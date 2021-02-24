@@ -3,15 +3,14 @@
     <head>
         <title>d3.js data driven page</title>
         <script src="https://d3js.org/d3.v6.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <style>
 
             #myCanvas {
-                background-color: yellow;
+                background-color:darkseagreen;
             }
 
             th {
-                color: blue;
+                color:darkblue;
             }
 
             .name {
@@ -33,7 +32,15 @@
         </style>
     </head>
 
-    <body onload="clickHere()">
+    <body>
+        <h1>3rd Assignment Data Tidying and Reporting</h1>
+        <hr>
+        <p>
+            In the folllowing example we can observe some data of well-knowns brands. We have the date,
+            the name of the company, their category and finally their value. We can select the top 10 
+            most valuable companies from each year and then, if we click in one of them, their color in 
+            the graph will change.
+        </p>
         <p>
             This page is inspired by the 
             <a href="https://observablehq.com/@d3/bar-chart-race" target="_blank"><b>Bar Chart Race</b></a>
@@ -43,7 +50,11 @@
             <svg id="myCanvas" style="width:100%; height: 200px;"></svg>
             <table id="myTable" border="1">
                 <thead></thead>
-                <tbody></tbody>
+                <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </tbody>
             </table>
         </p>
 
@@ -63,10 +74,18 @@
                     .data(d)
                     .join("tr")
                     .selectAll("td")
-                    .attr('class', 'fav')
                     .data(e => columns.map(x => e[x]))
                     .join("td")
-                        .text(x => x);
+                        .text(x => x)
+                        .on("click", x => CompanyUpdate(x))
+            }
+
+            var prueba;
+
+            function CompanyUpdate(x){
+                prueba = x.target.innerHTML;
+                console.log(prueba)
+                updateSelect()
             }
 
             function makeHeader(d) {
@@ -89,6 +108,8 @@
                 dateSelector(dates);
 
                 updateSelect()
+                makeHeader(d)
+
             }
 
             function dateSelector(d) {
@@ -110,7 +131,7 @@
             function updateSelect(e) {
                 val = d3.select("select").node().value
                 fdata = d3.filter(data, d => d.date == val)
-                fdata = fdata.slice(0,10)
+                fdata = fdata.slice(0,10);
                 updateTable(fdata)
                 updateChart(fdata)
                 updateChart(fdata)
@@ -136,7 +157,7 @@
                     .attr('y', d => y(maxValue - d.value))
                     .attr('height', d => y(d.value))
                     .attr('width', x(1)*0.95)
-                    .attr('fill', 'red')
+                    .attr('fill', d => d.name == prueba ? "forestgreen" : "firebrick")
 
                 svgBind.enter()
                     .append("text")
@@ -152,28 +173,24 @@
             function colorP() {
                 d3.selectAll("p").style("color", "red");
             }
-
-
-            function clickHere(){
-                var table = document.getElementById("myTable");
-                var row;
-                var cell;
-                for(var i=0;i<10;i++){
-                    row = table.insertRow(i);
-                    for(var j=0;j<2;j++){
-                        cell = row.insertCell(j);
-                        cell.addEventListener("click",function(){
-                            svgBind.enter()
-                            .append('rect')
-                            .attr('x', (d , i) => x(i))
-                            .attr('y', d => y(maxValue - d.value))
-                            .attr('height', d => y(d.value))
-                            .attr('width', x(1)*0.95)
-                            .attr('fill', 'blue')
-                        });
-                    }
-                }
+            
+            
+            function highlight(d) {
+                d3.select("table")
+                .selectAll("tr")
+                .data(d)
+                .on("click", function() {
+                    svgBind.enter()
+                    .append('rect')
+                    .attr('x', (d , i) => x(i))
+                    .attr('y', d => y(maxValue - d.value))
+                    .attr('height', d => y(d.value))
+                    .attr('width', x(1)*0.95)
+                    .attr('fill', 'blue')
+                    
+                })  
             }
+            
         </script>
     </body>
 </html>
